@@ -24,7 +24,7 @@ class NewArrayList {
   }
 
   public boolean addToFirstEmptySpace(Shoe E) {
-    for (int i = 0; i < this.data.length; ++i) {
+    for (int i = 0; i < this.capacity; ++i) {
       if (this.data[i] == null) {
         this.data[i] = E;
         this.size++;
@@ -40,8 +40,22 @@ class NewArrayList {
     if (this.data[index] == null) {
       this.set(index, element);
     } else {
-      this.ensureCapacity(10);
+      Shoe[] tempArray = new Shoe[this.capacity];
+      for (int i = 0; i < index; ++i) {
+        tempArray[i] = this.data[i];
+      }
       
+      for (int i = index + 1; i < capacity; ++i) {
+        tempArray[i] = this.data[i - 1];
+      }
+
+      tempArray[index] = element;
+      this.data = tempArray;
+      this.size++;
+    }
+
+    if (this.data[this.capacity - 1] != null) {
+    	ensureCapacity(10);
     }
   }
 
@@ -50,7 +64,7 @@ class NewArrayList {
   }
 
   public void clear() {
-    for (int i = 0; i < this.data.length; ++i) {
+    for (int i = 0; i < this.capacity; ++i) {
       this.data[i] = null;
     }
     this.size = 0;
@@ -66,17 +80,40 @@ class NewArrayList {
   }
 
   public void ensureCapacity(int minCapacity) {
-    if (this.size == this.capacity) {
+    if (minCapacity > this.capacity) {
       Shoe[] tempArray = new Shoe[Math.max(minCapacity, this.capacity * 2)];
       for (int i = 0; i < this.capacity; ++i) {
         tempArray[i] = this.data[i];
       }
+      this.data = tempArray;
       this.capacity *= 2;
     }
   }
+  
+  public boolean equals(NewArrayList List) {
+	  if (List.capacity() != this.capacity()) return false;
+	  
+	  for (int i = 0; i < this.capacity; ++i) {
+		  if (List.data[i] != this.data[i]) {
+			  return false;
+		  }
+	  }
+	  return true;
+  }
 
   public Shoe get(int index) {
-    return this.data[index];
+	  int counter = 0;
+
+	  for (int i = 0; i < this.data.length; ++i) {
+	    if (counter == index) {
+	      return this.data[i];
+	    }
+	      
+	    if (this.data[i] != null) {
+	      counter += 1;
+	    }
+	  }
+	  return new Shoe("s", "d", 10, 10.5, 10);
   }
 
   public int indexOf(Shoe element) {
@@ -93,26 +130,29 @@ class NewArrayList {
 
   public void printListShowCapacity() {
     System.out.print('[');
-    for (int i = 0; i < capacity; ++i) {
-      char c = (char) (96 + i);
-      System.out.print(c + ", ");
-    }
-    System.out.print(']');
-  }
-
-  public void printListShowSize() {
-    System.out.print('[');
     for (int i = 0; i < this.capacity - 1; ++i) {
       if (this.data[i] != null) {
         System.out.print("s");
       } else {
         System.out.print(" ");
       }
-
       System.out.print(", ");
     }
+    
     String last = this.data[this.capacity - 1] == null ? " " : "s";
-    System.out.print(last + "]");
+    System.out.println(last + "]");
+  }
+
+  public void printListShowSize() {
+    System.out.print('[');
+    for (int i = 0; i < this.capacity - 1; ++i) {
+      if (this.data[i] != null) {
+        System.out.print("s, ");
+      } 
+    }
+    
+    String last = this.data[this.capacity - 1] == null ? "" : "s";
+    System.out.println(last + "]");
   }
 
   public boolean remove(Shoe e) {
@@ -181,52 +221,42 @@ class NewArrayList {
   }
 
   public String toString() {
-    String informationString = "";
-    informationString += "Size: " + this.size + '\n';
-    informationString += "Capacity: " + this.capacity + '\n';
-    informationString += "Array List: ";
+    String sizeString = "Size: " + this.size + '\n';
+    String capacityString = "Capacity: " + this.capacity + '\n';
+    String arrayString = "Array List: ";
     
-    informationString += '[';
+    arrayString += '[';
     for (int i = 0; i < this.capacity - 1; ++i) {
       if (this.data[i] != null) {
-        informationString += "s";
+        arrayString += this.data[i].getYear();
       } else {
-        informationString += " ";
+        arrayString += " ";
       }
 
-      informationString += ", ";
+      arrayString += ", ";
     }
     String last = this.data[this.capacity - 1] == null ? " " : "s";
-    informationString += last + "]";
+    arrayString += last + "]";
 
-    return informationString;
+    return sizeString + capacityString + arrayString;
   }
 
-  /*
+  
   public static Shoe randomShoe() {
 	  Random myRandGenerator = new Random();
 	  
 	  String randomBrand = "";
 	  String randomModel = "";
-	  int randomYear = myRandGenerator.nextInt(2000, 2023);
-	  double randomSize = myRandGenerator.nextDouble(6, 10);
-	  int randomSKU = myRandGenerator.nextInt(100, 500);
+	  int randomYear = 321;
+	  double randomSize = myRandGenerator.nextDouble();
+	  int randomSKU = myRandGenerator.nextInt(200);
 	  
 	  for (int i = 0; i < 7; ++i) {
-		  randomBrand += (char) myRandGenerator.nextInt(97, 122);
-		  randomModel += (char) myRandGenerator.nextInt(97, 122);
+		  randomBrand += (char) myRandGenerator.nextInt(97);
+		  randomModel += (char) myRandGenerator.nextInt(97);
 	  }
 	  
 	  return new Shoe(randomBrand, randomModel, randomYear, randomSize, randomSKU);
   }
-
-  public static void main(String[] args) {
-    NewArrayList mine = new NewArrayList();
-    for (int i = 0; i < 10; ++i) {
-    	mine.addToFirstEmptySpace(randomShoe());
-    }    
-    
-  } 
-  */
   
 }
